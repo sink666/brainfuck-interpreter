@@ -61,34 +61,29 @@ int interpret(int *prog, int len, char **errstrp)
 int main(int argc, char *argv[])
 {
   FILE *fp;
-  char *fname;
-  char *errstr;
+  char *fname, *errstr;
   int program[30000] = {0}, len = 0;
 
   if(argc > 2 || argc < 2)
+    { fprintf(stderr, "%s: usage: bfi [file]\n", *argv); goto errexit; }
+
+  fname = *++argv;
+  if((fp = fopen(fname, "r")) == NULL)
     {
-      fprintf(stderr, "%s: interpreter only accepts single files.\n", *argv);
+      fprintf(stderr, "%s: can't open %s or %s does not exist.\n",
+              argv[-1], *argv);
       goto errexit;
     }
-  else
-    {
-      fname = *++argv;
-      if((fp = fopen(fname, "r")) == NULL)
-        {
-          fprintf(stderr, "%s: cannot open %s or file does not exist.\n",
-                  argv[-1], *argv);
-          goto errexit;
-        }
-      fclose(fp);
-    }
-
-  for(int i = 0, c = 0; i < 30000 && (c = getc(fp)) != EOF; i++)
+  
+  for(int i = 0, c; i < 30000 && (c = getc(fp)) != EOF; i++)
     {
       if(c == '\n') continue;
       program[i] = c;
       len++;
     }
 
+  fclose(fp);
+  
   if(interpret(program, len, &errstr))
     {
       fprintf(stderr, "%s: runtime error; %s\n", argv[-1], errstr);
