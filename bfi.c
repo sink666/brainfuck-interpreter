@@ -16,11 +16,13 @@ int interpret(int *prog, int len, char **errstrp)
         {
         case '+':
           ++tape[ptr];
-          if(tape[ptr] > 255) tape[ptr] = 0;
+          if(tape[ptr] > 255)
+            { tape[ptr] = 0; }
           break;
         case '-':
           --tape[ptr];
-          if(tape[ptr] < 0) tape[ptr] = 255;
+          if(tape[ptr] < 0)
+            { tape[ptr] = 255; }
           break;
         case '<':
           --ptr;
@@ -40,17 +42,17 @@ int interpret(int *prog, int len, char **errstrp)
                 {
                   peek = prog[i];
                   if(peek == '[')
-                    ++depth;
+                    { ++depth; }
                   else if(peek == ']')
-                    --depth;
+                    { --depth; }
                 }
             }
           break;
         case ']':
           if(tape[ptr])
-            i = jumpstack[jumpctr - 1];
+            { i = jumpstack[jumpctr - 1]; }
           else
-            jumpstack[--jumpctr] = 0;
+            { jumpstack[--jumpctr] = 0; }
           break;
         }
     }
@@ -64,23 +66,22 @@ int main(int argc, char *argv[])
   char *fname, *errstr;
   int program[30000] = {0}, len = 0;
 
-  if(argc > 2 || argc < 2)
-    { fprintf(stderr, "%s: usage: bfi [file]\n", *argv); goto errexit; }
+  if(argc != 2)
+    {
+      fprintf(stderr, "%s: usage: bfi [file]\n", *argv);
+      goto errexit;
+    }
 
   fname = *++argv;
   if((fp = fopen(fname, "r")) == NULL)
     {
       fprintf(stderr, "%s: can't open %s or %s does not exist.\n",
-              argv[-1], *argv);
+              argv[-1], *argv, *argv);
       goto errexit;
     }
   
   for(int i = 0, c; i < 30000 && (c = getc(fp)) != EOF; i++)
-    {
-      if(c == '\n') continue;
-      program[i] = c;
-      len++;
-    }
+    { if(c == '\n') continue; program[i] = c; len++; }
 
   fclose(fp);
   
@@ -90,12 +91,8 @@ int main(int argc, char *argv[])
       goto errexit;
     }
 
-  putc('\n', stdout);
-
-  return EXIT_SUCCESS;
+  exit(EXIT_SUCCESS);
 
  errexit:
   exit(EXIT_FAILURE);
 }
-
-
